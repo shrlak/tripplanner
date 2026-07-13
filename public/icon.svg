@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Trip Command Center: route with origin, waypoint, destination -->
+  <rect x="1" y="1" width="62" height="62" rx="14" fill="#0d1117" stroke="#30363d" stroke-width="2"/>
+  <!-- faint radar ring backdrop -->
+  <circle cx="32" cy="32" r="21" fill="none" stroke="#21262d" stroke-width="1.5"/>
+  <!-- route -->
+  <path d="M15 49 C 25 41, 21 31, 31 30 C 41 29, 40 21, 49 15"
+        fill="none" stroke="#58a6ff" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- origin -->
+  <circle cx="15" cy="49" r="6" fill="#0d1117" stroke="#3fb950" stroke-width="3.5"/>
+  <!-- waypoint -->
+  <circle cx="31" cy="30" r="4.5" fill="#0d1117" stroke="#58a6ff" stroke-width="3"/>
+  <!-- destination -->
+  <circle cx="49" cy="15" r="6.5" fill="#0d1117" stroke="#d29922" stroke-width="3.5"/>
+  <circle cx="49" cy="15" r="2" fill="#d29922"/>
+</svg>
