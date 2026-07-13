@@ -54,11 +54,11 @@ export default function MissionLaunch() {
         transition={{ duration: 0.2, ease: 'easeOut' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="lm-kicker">Transit day mission launch</div>
-        <div className="lm-sub">Insertion / consolidation</div>
-        <h1>Transit + settle in</h1>
+        <div className="lm-kicker">Departure day launch</div>
+        <div className="lm-sub">Everyone en route</div>
+        <h1>Departure day</h1>
         <p className="lm-desc">
-          {trip.families.map((f) => f.name).filter(Boolean).join(' + ') || 'Units'} deploying
+          {trip.families.map((f) => f.name).filter(Boolean).join(' + ') || 'Everyone'} heading
           {dest ? ` to ${dest.name}.` : '.'}
         </p>
 
@@ -70,7 +70,7 @@ export default function MissionLaunch() {
             <RouteIcon size={12} /> ETA <b>{launchInfo ? fmtDateTime(launchInfo.arrive) : '—'}</b>
           </span>
           <span className="launch-stat">
-            <Users size={12} /> Units <b>{launchInfo?.units ?? '—'}</b>
+            <Users size={12} /> Groups <b>{launchInfo?.units ?? '—'}</b>
           </span>
           <span className="launch-stat">
             Drive <b>{launchInfo ? fmtDuration(launchInfo.totalDrive) : '—'}</b>
@@ -107,8 +107,7 @@ export default function MissionLaunch() {
             </div>
             <div className="lt-title">{dest?.name || 'No destination set'}</div>
             <div className="lt-desc">
-              Get inbound units through the gate, staged at basecamp, and settled before evening
-              tempo begins.
+              Get everyone to the destination, checked in, and settled before the evening.
             </div>
           </div>
         </div>

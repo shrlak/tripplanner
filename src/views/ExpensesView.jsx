@@ -111,7 +111,7 @@ export default function ExpensesView() {
           <div className="panel">
             <div className="section-label">Totals</div>
             <div className="kv-row"><span className="k">Trip total</span><span className="v" style={{ fontSize: 15, color: 'var(--text)' }}>{fmtMoney(totals.total)}</span></div>
-            <div className="kv-row"><span className="k">Even split / unit</span><span className="v">{fmtMoney(totals.share)}</span></div>
+            <div className="kv-row"><span className="k">Even split / group</span><span className="v">{fmtMoney(totals.share)}</span></div>
           </div>
           <div className="panel">
             <div className="section-label">Settlement — even split</div>
@@ -128,7 +128,7 @@ export default function ExpensesView() {
               )
             })}
             <div style={{ fontSize: 10, color: 'var(--faint)', marginTop: 8 }}>
-              Paid vs. an even split across {trip.families.length} travel unit{trip.families.length === 1 ? '' : 's'}.
+              Paid vs. an even split across {trip.families.length} travel group{trip.families.length === 1 ? '' : 's'}.
             </div>
           </div>
         </div>

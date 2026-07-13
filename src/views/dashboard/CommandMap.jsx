@@ -1,16 +1,15 @@
-import React, { useEffect, useMemo } from 'react'
-import { MapContainer, TileLayer, Polyline, Marker, useMap } from 'react-leaflet'
+import React, { useEffect, useMemo, useState } from 'react'
+import { MapContainer, TileLayer, Polyline, Marker, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
+import { Layers, ChevronDown, MousePointer2 } from 'lucide-react'
 import { useTrip } from '../../state/TripContext.jsx'
-import { locatedStops, getDestination } from '../../state/tripModel.js'
+import { locatedStops, getDestination, createStop } from '../../state/tripModel.js'
+import { MAP_LAYERS, mapLayerOf, routeColorsFor, DEFAULT_MAP_MODE } from '../../lib/mapLayers.js'
+import { reverseGeocode } from '../../lib/geocode.js'
 import { convoyPositionAt } from '../../lib/playback.js'
 import { describeWmo } from '../../lib/weather.js'
 import WeatherIcon from '../../components/WeatherIcon.jsx'
 import { fmtTemp } from '../../lib/format.js'
-
-const TILE_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-const TILE_ATTribution =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
 
 function stopIcon(number, kind, selected) {
   return L.divIcon({
@@ -46,6 +45,43 @@ function FitToStops({ stops }) {
   return null
 }
 
+// Right-click (long-press on touch devices) anywhere on the map to add a stop.
+function AddStopOnRightClick({ onAdd }) {
+  useMapEvents({
+    contextmenu(e) {
+      onAdd(e.latlng)
+    },
+  })
+  return null
+}
+
+function LayerControl({ mode, setMode }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="layer-control">
+      <button className="btn sm" onClick={() => setOpen((o) => !o)}>
+        <Layers size={12} /> Map: {mapLayerOf(mode).label} <ChevronDown size={11} />
+      </button>
+      {open && (
+        <div className="layer-menu">
+          {Object.entries(MAP_LAYERS).map(([id, layer]) => (
+            <button
+              key={id}
+              className={id === mode ? 'active' : ''}
+              onClick={() => {
+                setMode(id)
+                setOpen(false)
+              }}
+            >
+              {layer.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function WeatherIntelOverlay() {
   const { trip, plan, weatherFor, prefs } = useTrip()
   const rows = useMemo(() => {
@@ -65,7 +101,7 @@ function WeatherIntelOverlay() {
   return (
     <div className="map-panel fade-in">
       <div className="section-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-        Weather intel
+        Weather
         <span style={{ color: 'var(--faint)' }}>OPEN-METEO</span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -90,14 +126,37 @@ function WeatherIntelOverlay() {
 }
 
 export default function CommandMap() {
-  const { trip, plan, familyRoutes, selection, setSelection, sim } = useTrip()
+  const { trip, updateTrip, plan, familyRoutes, selection, setSelection, sim, prefs, setPrefs } = useTrip()
   const stops = locatedStops(trip.stops)
+  const mapMode = prefs.mapMode || DEFAULT_MAP_MODE
+  const layer = mapLayerOf(mapMode)
+  const colors = routeColorsFor(mapMode)
 
   const orderNumber = useMemo(() => {
     const m = new Map()
     plan?.orderedStops.forEach((s, i) => m.set(s.id, i + 1))
     return m
   }, [plan])
+
+  const addStopAt = async ({ lat, lng }) => {
+    const stop = createStop({
+      name: 'Dropped pin',
+      address: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+      lat,
+      lon: lng,
+      kind: 'poi',
+      dwellMin: 60,
+    })
+    updateTrip((t) => ({ ...t, stops: [...t.stops, stop], manualOrder: [...(t.manualOrder || []), stop.id] }))
+    setSelection({ type: 'stop', id: stop.id })
+    const place = await reverseGeocode(lat, lng)
+    updateTrip((t) => ({
+      ...t,
+      stops: t.stops.map((s) =>
+        s.id === stop.id ? { ...s, name: place.name, address: place.detail || s.address } : s,
+      ),
+    }))
+  }
 
   const simNow = sim.simTime
   const mainConvoy = useMemo(
@@ -125,8 +184,15 @@ export default function CommandMap() {
         zoomControl={true}
         style={{ height: '100%', width: '100%' }}
       >
-        <TileLayer url={TILE_URL} attribution={TILE_ATTribution} subdomains="abcd" maxZoom={19} />
+        <TileLayer
+          key={mapMode}
+          url={layer.url}
+          attribution={layer.attribution}
+          subdomains={layer.subdomains}
+          maxZoom={19}
+        />
         <FitToStops stops={stops} />
+        <AddStopOnRightClick onAdd={addStopAt} />
 
         {familyRoutes.map((fr) => (
           <Polyline
@@ -142,8 +208,7 @@ export default function CommandMap() {
             positions={leg.geometry}
             eventHandlers={{ click: () => setSelection({ type: 'leg', id: i }) }}
             pathOptions={{
-              color:
-                selection?.type === 'leg' && selection.id === i ? '#d29922' : '#58a6ff',
+              color: selection?.type === 'leg' && selection.id === i ? colors.selected : colors.main,
               weight: selection?.type === 'leg' && selection.id === i ? 4 : 3,
               opacity: 0.85,
             }}
@@ -163,13 +228,14 @@ export default function CommandMap() {
           />
         ))}
 
-        {mainConvoy && <Marker position={mainConvoy.pos} icon={convoyIcon('#58a6ff')} zIndexOffset={900} />}
+        {mainConvoy && <Marker position={mainConvoy.pos} icon={convoyIcon(colors.main)} zIndexOffset={900} />}
         {familyPositions.map((fp) => (
           <Marker key={fp.familyId} position={fp.pos} icon={convoyIcon(fp.color)} zIndexOffset={800} />
         ))}
       </MapContainer>
 
-      <div className="map-overlay-tl">
+      <div className="map-overlay-tl" style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+        <LayerControl mode={mapMode} setMode={(m) => setPrefs({ mapMode: m })} />
         {plan?.estimated && (
           <span className="chip amber" title="Routing service unreachable — times are straight-line estimates">
             Offline estimate
@@ -178,6 +244,11 @@ export default function CommandMap() {
       </div>
       <div className="map-overlay-tr">
         <WeatherIntelOverlay />
+      </div>
+      <div style={{ position: 'absolute', bottom: 24, left: 12, zIndex: 1000 }}>
+        <span className="chip" title="Adds a place to visit at that point">
+          <MousePointer2 size={10} /> Right-click map to add a stop
+        </span>
       </div>
     </div>
   )

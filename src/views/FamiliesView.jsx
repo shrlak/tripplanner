@@ -13,9 +13,9 @@ export default function FamiliesView() {
 
   return (
     <div style={{ padding: 18, overflowY: 'auto', height: '100%' }}>
-      <div className="section-label">Response plans</div>
+      <div className="section-label">Who's coming</div>
       <div className="panel-title" style={{ marginBottom: 14 }}>
-        Travel units <span style={{ color: 'var(--faint)', fontSize: 11, fontWeight: 400 }}>· {trip.families.length} tracked</span>
+        Travel groups <span style={{ color: 'var(--faint)', fontSize: 11, fontWeight: 400 }}>· {trip.families.length} tracked</span>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(330px, 1fr))', gap: 14, maxWidth: 1200 }}>
@@ -28,7 +28,7 @@ export default function FamiliesView() {
                   className="input"
                   style={{ fontSize: 15, fontWeight: 800, textTransform: 'uppercase', color: f.color, width: '65%' }}
                   value={f.name}
-                  placeholder="Unit name"
+                  placeholder="Group name"
                   onChange={(e) => patch(f.id, { name: e.target.value })}
                 />
                 <button
@@ -56,7 +56,7 @@ export default function FamiliesView() {
                   <div className="stop-row">
                     <div className="stop-name">
                       <div className="n">{f.origin.name}</div>
-                      {fr && <div className="a">{fmtDuration(fr.driveSec)} inbound to basecamp</div>}
+                      {fr && <div className="a">{fmtDuration(fr.driveSec)} to destination</div>}
                     </div>
                     <button className="icon-btn danger" onClick={() => patch(f.id, { origin: null })}>
                       <Trash2 size={12} />
@@ -101,12 +101,12 @@ export default function FamiliesView() {
               ...t,
               families: [
                 ...t.families,
-                createFamily({ name: `Unit ${t.families.length + 1}`, color: FAMILY_COLORS[t.families.length % FAMILY_COLORS.length] }),
+                createFamily({ name: `Group ${t.families.length + 1}`, color: FAMILY_COLORS[t.families.length % FAMILY_COLORS.length] }),
               ],
             }))
           }
         >
-          <Plus size={15} /> Add travel unit
+          <Plus size={15} /> Add travel group
         </button>
       </div>
     </div>

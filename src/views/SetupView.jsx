@@ -1,9 +1,9 @@
 import React from 'react'
 import { Reorder } from 'framer-motion'
-import { GripVertical, Trash2, ArrowDown, Download, Upload, RefreshCw, Plus } from 'lucide-react'
+import { GripVertical, Trash2, ArrowDown, Download, Upload, RefreshCw, Plus, Car, Bike, Footprints } from 'lucide-react'
 import { useTrip } from '../state/TripContext.jsx'
 import LocationSearch from '../components/LocationSearch.jsx'
-import { createStop, getOrigin, getDestination, manualOrderedMiddles } from '../state/tripModel.js'
+import { createStop, getOrigin, getDestination, manualOrderedMiddles, TRAVEL_MODES, travelModeOf } from '../state/tripModel.js'
 import { fmtDuration, fmtDistance, fmtDateTime } from '../lib/format.js'
 
 function toLocalInput(iso) {
@@ -34,7 +34,7 @@ function EndpointField({ label, stop, onPick, onClear, placeholder }) {
 }
 
 export default function SetupView({ setView }) {
-  const { trip, updateTrip, plan, routeStatus, prefs, setPrefs, resetToDemo, createNewTrip, importTrip } = useTrip()
+  const { trip, updateTrip, plan, routeStatus, prefs, setPrefs, resetToDemo, createNewTrip, deleteTrip, importTrip } = useTrip()
   const origin = getOrigin(trip)
   const destination = getDestination(trip)
   const middles = manualOrderedMiddles(trip)
@@ -113,7 +113,7 @@ export default function SetupView({ setView }) {
     <div className="setup-grid">
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div className="panel">
-          <div className="section-label">Operation</div>
+          <div className="section-label">1 · Trip basics</div>
           <label className="field-label">Trip name</label>
           <input
             className="input"
@@ -133,7 +133,7 @@ export default function SetupView({ setView }) {
         </div>
 
         <div className="panel">
-          <div className="section-label">Route endpoints</div>
+          <div className="section-label">2 · Start &amp; end</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <EndpointField
               label="Origin (start location)"
@@ -154,7 +154,7 @@ export default function SetupView({ setView }) {
 
         <div className="panel">
           <div className="section-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-            Stops &amp; places to visit
+            3 · Stops &amp; places to visit
             <span style={{ color: 'var(--faint)' }}>{middles.length} listed</span>
           </div>
 
@@ -215,7 +215,23 @@ export default function SetupView({ setView }) {
         </div>
 
         <div className="panel">
-          <div className="section-label">Preferences &amp; data</div>
+          <div className="section-label">4 · Travel mode &amp; preferences</div>
+          <label className="field-label">How are you traveling?</label>
+          <div className="mode-toggle" style={{ marginBottom: 10 }}>
+            {TRAVEL_MODES.map((m) => {
+              const Icon = m.id === 'driving' ? Car : m.id === 'cycling' ? Bike : Footprints
+              return (
+                <button
+                  key={m.id}
+                  className={travelModeOf(trip) === m.id ? 'active' : ''}
+                  onClick={() => updateTrip({ travelMode: m.id })}
+                >
+                  <Icon size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />
+                  {m.label}
+                </button>
+              )
+            })}
+          </div>
           <div className="form-row">
             <div>
               <label className="field-label">Temperature</label>
@@ -237,6 +253,14 @@ export default function SetupView({ setView }) {
             <button className="btn sm" onClick={exportJson}><Download size={11} /> Export</button>
             <button className="btn sm" onClick={importJson}><Upload size={11} /> Import</button>
             <button className="btn sm ghost" onClick={resetToDemo}><RefreshCw size={11} /> Load demo trip</button>
+            <button
+              className="btn sm danger"
+              onClick={() => {
+                if (window.confirm(`Delete "${trip.name}"? This cannot be undone.`)) deleteTrip(trip.id)
+              }}
+            >
+              <Trash2 size={11} /> Delete this trip
+            </button>
           </div>
         </div>
       </div>
@@ -244,7 +268,7 @@ export default function SetupView({ setView }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div className="panel">
           <div className="section-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-            Leg manifest — planned path
+            Planned path
             {routeStatus === 'loading' && <span style={{ color: 'var(--amber)' }}>COMPUTING…</span>}
             {plan?.estimated && <span style={{ color: 'var(--amber)' }}>OFFLINE ESTIMATE</span>}
           </div>

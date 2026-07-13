@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Play, Pause, RotateCcw, Rocket } from 'lucide-react'
 import { useTrip } from '../../state/TripContext.jsx'
+import { travelVerb } from '../../state/tripModel.js'
 import { fmtDateTime, fmtDayShort, fmtDuration } from '../../lib/format.js'
 import { format } from 'date-fns'
 
@@ -32,7 +33,7 @@ export default function OpsRail() {
         title: `${stopById.get(leg.fromId)?.name || '?'} → ${stopById.get(leg.toId)?.name || '?'}`,
         start: new Date(leg.departure).getTime(),
         end: new Date(leg.arrival).getTime(),
-        chip: 'TRANSIT',
+        chip: travelVerb(trip),
         chipClass: 'blue',
         sub: `${fmtDateTime(leg.departure)} · ${fmtDuration(leg.driveSec)}`,
       })
@@ -48,7 +49,7 @@ export default function OpsRail() {
         title: stop.name,
         start: new Date(e.arrival).getTime(),
         end: new Date(e.departure).getTime(),
-        chip: stop.kind === 'stopover' ? 'BASECAMP' : 'ON SITE',
+        chip: stop.kind === 'stopover' ? 'STAY' : 'ON SITE',
         chipClass: 'green',
         sub: `${fmtDateTime(e.arrival)} arrival`,
       })
@@ -83,7 +84,7 @@ export default function OpsRail() {
   return (
     <aside className="ops-rail">
       <div className="panel">
-        <div className="section-label">Current situation</div>
+        <div className="section-label">Now</div>
         <div className="mono" style={{ fontSize: 19, fontWeight: 700 }}>
           {format(new Date(now), 'EEE M/dd hh:mm a')}
         </div>
@@ -102,12 +103,12 @@ export default function OpsRail() {
           </div>
         </div>
         <button className="btn go" style={{ width: '100%', marginTop: 10 }} onClick={launch.show}>
-          <Rocket size={13} /> Mission launch
+          <Rocket size={13} /> Launch trip day
         </button>
       </div>
 
       <div>
-        <div className="section-label muted-label">Live now</div>
+        <div className="section-label muted-label">Happening now</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {live.length === 0 && <div className="empty-note">Nothing in motion at this time.</div>}
           {live.map(renderRow)}
@@ -115,7 +116,7 @@ export default function OpsRail() {
       </div>
 
       <div>
-        <div className="section-label muted-label">Coming up</div>
+        <div className="section-label muted-label">Up next</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {soon.slice(0, 5).map(renderRow)}
           {soon.length === 0 && <div className="empty-note">No upcoming movements.</div>}
@@ -123,7 +124,7 @@ export default function OpsRail() {
       </div>
 
       <div>
-        <div className="section-label">Travel units</div>
+        <div className="section-label">Travel groups</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {trip.families.map((f) => {
             const fr = familyRoutes.find((r) => r.familyId === f.id)
@@ -158,7 +159,7 @@ export default function OpsRail() {
 
       <div className="panel">
         <div className="section-label">
-          Scenario mode · time scrub
+          Timeline playback
         </div>
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
           {(plan?.days || []).map((d, i) => {

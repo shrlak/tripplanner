@@ -33,7 +33,7 @@
 
   --rail-w: 264px;
   --inspector-w: 316px;
-  --sidebar-w: 58px;
+  --sidebar-w: 66px;
   --topbar-h: 46px;
 }
 
@@ -261,17 +261,26 @@ textarea.input { resize: vertical; min-height: 64px; }
   border-right: 1px solid var(--border);
 }
 .icon-sidebar .nav-btn {
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 46px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 3px;
   border: 1px solid transparent;
   border-radius: var(--radius);
   background: transparent;
   color: var(--muted);
   cursor: pointer;
   transition: color 100ms ease-out, background 100ms ease-out;
+}
+.icon-sidebar .nav-label {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
 }
 .icon-sidebar .nav-btn:hover { color: var(--text); background: var(--surface-2); }
 .icon-sidebar .nav-btn.active {
@@ -381,6 +390,35 @@ textarea.input { resize: vertical; min-height: 64px; }
   padding: 10px;
   backdrop-filter: blur(4px);
 }
+
+.layer-control { position: relative; }
+.layer-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 130px;
+  background: rgba(16, 20, 26, 0.97);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0,0,0,.6);
+}
+.layer-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 7px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+}
+.layer-menu button:hover { background: var(--surface-2); color: var(--text); }
+.layer-menu button.active { color: var(--blue); background: var(--blue-dim); }
 
 /* ---------- timeline strip ---------- */
 
@@ -500,12 +538,23 @@ textarea.input { resize: vertical; min-height: 64px; }
 }
 
 .mission-card {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 11px;
   cursor: pointer;
 }
+.card-del {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  opacity: 0;
+  transition: opacity 100ms ease-out;
+}
+.mission-card:hover .card-del,
+.event-row:hover .card-del,
+.stop-row:hover .card-del { opacity: 1; }
 .mission-card:hover { border-color: var(--border-strong); }
 .mission-card.selected { border-color: rgba(88,166,255,.55); }
 .mission-card .mc-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }

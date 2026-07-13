@@ -23,15 +23,15 @@ export default function LodgingView() {
 
   return (
     <div style={{ padding: 18, overflowY: 'auto', height: '100%' }}>
-      <div className="section-label">Accommodations</div>
-      <div className="panel-title" style={{ marginBottom: 14 }}>Basing plan</div>
+      <div className="section-label">Stays</div>
+      <div className="panel-title" style={{ marginBottom: 14 }}>Where you're staying</div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 14, maxWidth: 1200 }}>
         {trip.lodging.map((l) => (
           <div key={l.id} className="panel">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div className="section-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Home size={11} /> Base
+                <Home size={11} /> Stay
               </div>
               <button
                 className="icon-btn danger"
@@ -79,13 +79,13 @@ export default function LodgingView() {
             </div>
             <div style={{ marginTop: 8 }}>
               <label className="field-label">Notes</label>
-              <textarea className="input" value={l.notes} onChange={(e) => patch(l.id, { notes: e.target.value })} placeholder="Gate codes, check-in windows, parking, quirks…" />
+              <textarea className="input" value={l.notes} onChange={(e) => patch(l.id, { notes: e.target.value })} placeholder="Check-in windows, parking, door codes, quirks…" />
             </div>
           </div>
         ))}
 
         <div className="panel" style={{ borderStyle: 'dashed' }}>
-          <div className="section-label muted-label">Add base</div>
+          <div className="section-label muted-label">Add a stay</div>
           <input className="input" placeholder="Lodging name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           <input className="input" style={{ marginTop: 6 }} placeholder="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
           <div className="form-row" style={{ marginTop: 6 }}>

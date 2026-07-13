@@ -1,10 +1,19 @@
-// Driving times and route geometry from the public OSRM demo server
-// (router.project-osrm.org) — free and keyless. Responses are cached in
-// localStorage keyed by the rounded coordinate list, and every call degrades
-// to a haversine estimate (straight lines, ~70 km/h average) if the network
-// or the service is unavailable, so the planner never hard-fails.
+// Travel times and route geometry from free, keyless OSRM servers. Each
+// travel mode maps to a FOSSGIS profile server (routing.openstreetmap.de);
+// driving additionally falls back to the OSRM demo server. Responses are
+// cached in localStorage keyed by mode + rounded coordinates, and every call
+// degrades to a haversine estimate (straight lines at a mode-typical speed)
+// if no server is reachable, so the planner never hard-fails.
 
-const OSRM = 'https://router.project-osrm.org'
+const SERVERS = {
+  driving: ['https://routing.openstreetmap.de/routed-car', 'https://router.project-osrm.org'],
+  cycling: ['https://routing.openstreetmap.de/routed-bike'],
+  walking: ['https://routing.openstreetmap.de/routed-foot'],
+}
+
+// Straight-line fallback speeds (km/h) and detour factor per mode.
+const FALLBACK_KMH = { driving: 70, cycling: 16, walking: 4.5 }
+
 const CACHE_PREFIX = 'tcc-osrm-'
 const memCache = new Map()
 
@@ -47,24 +56,42 @@ export function haversineMeters(a, b) {
   return 2 * R * Math.asin(Math.sqrt(s))
 }
 
-// Straight-line fallback: road distance ≈ 1.25 × crow-flies at ~70 km/h.
-function estimateLeg(a, b) {
+// Real paths ≈ 1.25 × crow-flies at a mode-typical speed.
+function estimateLeg(a, b, mode) {
   const meters = haversineMeters(a, b) * 1.25
-  return { driveSec: meters / (70000 / 3600), distanceM: meters }
+  const kmh = FALLBACK_KMH[mode] || FALLBACK_KMH.driving
+  return { driveSec: meters / ((kmh * 1000) / 3600), distanceM: meters }
+}
+
+async function fetchFromServers(mode, path) {
+  const servers = SERVERS[mode] || SERVERS.driving
+  let lastErr
+  for (const base of servers) {
+    try {
+      const res = await fetch(`${base}${path}`)
+      if (!res.ok) throw new Error(`OSRM ${res.status}`)
+      const data = await res.json()
+      if (data.code !== 'Ok') throw new Error(`OSRM ${data.code}`)
+      return data
+    } catch (err) {
+      lastErr = err
+    }
+  }
+  throw lastErr
 }
 
 // Duration matrix (seconds) between every pair of coords [{lat, lon}, …].
-export async function getDurationMatrix(coords) {
-  const key = 'table:' + coordKey(coords)
+export async function getDurationMatrix(coords, mode = 'driving') {
+  const key = `table:${mode}:` + coordKey(coords)
   const hit = cacheGet(key)
   if (hit) return hit
 
   try {
     const path = coords.map((c) => `${c.lon},${c.lat}`).join(';')
-    const res = await fetch(`${OSRM}/table/v1/driving/${path}?annotations=duration,distance`)
-    if (!res.ok) throw new Error(`OSRM table ${res.status}`)
-    const data = await res.json()
-    if (data.code !== 'Ok') throw new Error(`OSRM table ${data.code}`)
+    const data = await fetchFromServers(
+      mode,
+      `/table/v1/driving/${path}?annotations=duration,distance`,
+    )
     const out = { durations: data.durations, distances: data.distances, estimated: false }
     cacheSet(key, out)
     return out
@@ -75,7 +102,7 @@ export async function getDurationMatrix(coords) {
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
         if (i === j) continue
-        const { driveSec, distanceM } = estimateLeg(coords[i], coords[j])
+        const { driveSec, distanceM } = estimateLeg(coords[i], coords[j], mode)
         durations[i][j] = driveSec
         distances[i][j] = distanceM
       }
@@ -86,19 +113,18 @@ export async function getDurationMatrix(coords) {
 
 // Full route through ordered coords. Returns per-leg duration/distance and
 // per-leg geometry as [[lat, lon], …] (built from OSRM step geometries).
-export async function getRoute(coords) {
-  const key = 'route:' + coordKey(coords)
+export async function getRoute(coords, mode = 'driving') {
+  const key = `route:${mode}:` + coordKey(coords)
   const hit = cacheGet(key)
   if (hit) return hit
 
   try {
     const path = coords.map((c) => `${c.lon},${c.lat}`).join(';')
-    const res = await fetch(
-      `${OSRM}/route/v1/driving/${path}?overview=false&steps=true&geometries=geojson`,
+    const data = await fetchFromServers(
+      mode,
+      `/route/v1/driving/${path}?overview=false&steps=true&geometries=geojson`,
     )
-    if (!res.ok) throw new Error(`OSRM route ${res.status}`)
-    const data = await res.json()
-    if (data.code !== 'Ok' || !data.routes?.[0]) throw new Error(`OSRM route ${data.code}`)
+    if (!data.routes?.[0]) throw new Error('OSRM no route')
     const route = data.routes[0]
     const legs = route.legs.map((leg) => {
       const line = []
@@ -116,7 +142,7 @@ export async function getRoute(coords) {
   } catch {
     const legs = []
     for (let i = 0; i < coords.length - 1; i++) {
-      const { driveSec, distanceM } = estimateLeg(coords[i], coords[i + 1])
+      const { driveSec, distanceM } = estimateLeg(coords[i], coords[i + 1], mode)
       legs.push({
         driveSec,
         distanceM,

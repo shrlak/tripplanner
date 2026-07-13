@@ -18,17 +18,22 @@ function sameDay(a, b) {
   return a.toDateString() === b.toDateString()
 }
 
-export default function TimelineStrip() {
+export default function TimelineStrip({ setView }) {
   const { trip, plan, weatherFor, prefs, setSelection, sim } = useTrip()
   const stopById = useMemo(() => new Map(trip.stops.map((s) => [s.id, s])), [trip.stops])
   const weatherAnchor = trip.stops.find((s) => s.kind === 'stopover') || getDestination(trip)
 
   if (!plan) {
     return (
-      <div className="timeline-cell" style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <div className="timeline-cell" style={{ alignItems: 'center', justifyContent: 'center', gap: 8 }}>
         <div className="empty-note" style={{ border: 0 }}>
-          Set an origin and destination in Route &amp; Trip Setup to build the mission timeline.
+          Add a start and destination to build your day-by-day timeline.
         </div>
+        {setView && (
+          <button className="btn primary sm" onClick={() => setView('setup')}>
+            Open trip setup
+          </button>
+        )}
       </div>
     )
   }

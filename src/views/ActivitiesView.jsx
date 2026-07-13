@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { eachDayOfInterval, startOfDay, addDays } from 'date-fns'
-import { Plus, MapPin, Search, Settings2, AlertTriangle, Clock } from 'lucide-react'
+import { Plus, MapPin, Search, Settings2, AlertTriangle, Clock, Trash2 } from 'lucide-react'
 import { useTrip } from '../state/TripContext.jsx'
 import { uid, ACTIVITY_WINDOWS, ACTIVITY_STATUS } from '../state/tripModel.js'
 import { fmtDayLabel } from '../lib/format.js'
@@ -42,9 +42,9 @@ export default function ActivitiesView() {
     <div className="board">
       <div className="board-list">
         <div>
-          <div className="section-label">Activity board</div>
+          <div className="section-label">Day planner</div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span className="panel-title">Day missions</span>
+            <span className="panel-title">Day plans</span>
             <span style={{ fontSize: 10, color: 'var(--faint)' }}>{trip.activities.length} tracked</span>
           </div>
         </div>
@@ -68,12 +68,23 @@ export default function ActivitiesView() {
               {a.description && <div className="mc-body">{a.description}</div>}
               {a.fallback && (
                 <div className="mc-fallback">
-                  <b>FALLBACK:</b> {a.fallback}
+                  <b>BACKUP:</b> {a.fallback}
                 </div>
               )}
+              <button
+                className="icon-btn danger card-del"
+                title="Remove day plan"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  updateTrip((t) => ({ ...t, activities: t.activities.filter((x) => x.id !== a.id) }))
+                  if (selectedId === a.id) setSelectedId(null)
+                }}
+              >
+                <Trash2 size={12} />
+              </button>
             </div>
           ))}
-        {trip.activities.length === 0 && <div className="empty-note">No day missions yet.</div>}
+        {trip.activities.length === 0 && <div className="empty-note">No day plans yet.</div>}
 
         <div className="panel" style={{ marginTop: 'auto' }}>
           <div className="section-label muted-label">Planner · add activity</div>
@@ -113,7 +124,7 @@ export default function ActivitiesView() {
           <>
             <div className="panel">
               <div className="section-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                Mission planning surface
+                Plan details
                 <span className={`chip ${statusChip[selected.status]}`}>{selected.status}</span>
               </div>
               <h2 style={{ margin: '4px 0 2px', fontSize: 22, textTransform: 'uppercase', letterSpacing: '.02em' }}>
@@ -130,9 +141,9 @@ export default function ActivitiesView() {
             </div>
 
             <div className="panel">
-              <div className="section-label">Mission frame · why this day matters</div>
+              <div className="section-label">The plan</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <FrameRow icon={<Settings2 size={12} />} label="Core plan">
+                <FrameRow icon={<Settings2 size={12} />} label="What's happening">
                   <textarea
                     className="input"
                     value={selected.description}
@@ -140,7 +151,7 @@ export default function ActivitiesView() {
                     onChange={(e) => patchActivity(selected.id, { description: e.target.value })}
                   />
                 </FrameRow>
-                <FrameRow icon={<MapPin size={12} />} label="Anchor location">
+                <FrameRow icon={<MapPin size={12} />} label="Location">
                   <select
                     className="input"
                     value={selected.stopId || ''}
@@ -152,7 +163,7 @@ export default function ActivitiesView() {
                     ))}
                   </select>
                 </FrameRow>
-                <FrameRow icon={<AlertTriangle size={12} />} label="Fallback">
+                <FrameRow icon={<AlertTriangle size={12} />} label="Backup plan">
                   <textarea
                     className="input"
                     value={selected.fallback}
@@ -197,7 +208,7 @@ export default function ActivitiesView() {
             </div>
           </>
         ) : (
-          <div className="empty-note" style={{ marginTop: 40 }}>Select a day mission to open its planning surface.</div>
+          <div className="empty-note" style={{ marginTop: 40 }}>Select a day plan to see its details.</div>
         )}
       </div>
 
@@ -205,7 +216,7 @@ export default function ActivitiesView() {
         {selected && (
           <>
             <div className="panel">
-              <div className="section-label">Selected item · mission snapshot</div>
+              <div className="section-label">Selected plan</div>
               <div className="kv-row"><span className="k">Risk watch</span><span className="v" style={{ color: selected.status === 'watch' ? 'var(--amber)' : 'var(--green)' }}>{selected.status === 'watch' ? 'Medium' : selected.status === 'hold' ? 'High' : 'Low'}</span></div>
               <div className="kv-row"><span className="k">Window</span><span className="v">{dayLabel(selected.dayIdx)} / {selected.window}</span></div>
               {selected.stopId && stopById.get(selected.stopId) && (
@@ -214,7 +225,7 @@ export default function ActivitiesView() {
               {selected.description && <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 8 }}>{selected.description}</div>}
               {selected.fallback && (
                 <div className="mc-fallback" style={{ background: 'var(--amber-dim)', border: '1px solid rgba(210,153,34,.3)', borderRadius: 3, padding: 8, marginTop: 8 }}>
-                  <b>FALLBACK:</b> {selected.fallback}
+                  <b>BACKUP:</b> {selected.fallback}
                 </div>
               )}
             </div>

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { MapPin, Plus } from 'lucide-react'
+import { MapPin, Plus, X, Trash2 } from 'lucide-react'
 import { useTrip } from '../../state/TripContext.jsx'
 import WeatherIcon from '../../components/WeatherIcon.jsx'
 import { describeWmo, FORECAST_DAYS } from '../../lib/weather.js'
@@ -20,7 +20,7 @@ function WeatherPanel({ stop, dateISO }) {
   const w = weatherFor(stop, dateISO)
   return (
     <div className="panel">
-      <div className="section-label">Weather intel</div>
+      <div className="section-label">Weather</div>
       {w ? (
         <div className="weather-row" style={{ border: 0, padding: 0, background: 'transparent' }}>
           <span className="w-icon">
@@ -47,7 +47,7 @@ function WeatherPanel({ stop, dateISO }) {
 }
 
 function StopInspector({ stopId }) {
-  const { trip, plan, updateTrip, prefs } = useTrip()
+  const { trip, plan, updateTrip, prefs, setSelection } = useTrip()
   const [newTask, setNewTask] = useState('')
   const stop = trip.stops.find((s) => s.id === stopId)
   const entry = plan?.entries.find((e) => e.stopId === stopId)
@@ -85,7 +85,7 @@ function StopInspector({ stopId }) {
 
       {(legIn || entry) && (
         <div className="panel">
-          <div className="section-label">Movement</div>
+          <div className="section-label">Getting there</div>
           {legIn && (
             <>
               <KV k="Route" v={`${stopById.get(legIn.fromId)?.name || '?'} →`} />
@@ -117,14 +117,14 @@ function StopInspector({ stopId }) {
       <WeatherPanel stop={stop} dateISO={entry?.arrival || trip.startDateTime} />
 
       <div className="panel">
-        <div className="section-label">Checklist · planning tasks</div>
+        <div className="section-label">Checklist</div>
         {stop.checklist.length === 0 && (
           <div style={{ fontSize: 11, color: 'var(--faint)', marginBottom: 6 }}>
             No linked tasks yet. Add one below if this item needs follow-up.
           </div>
         )}
         {stop.checklist.map((c) => (
-          <label key={c.id} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '3px 0', fontSize: 12 }}>
+          <div key={c.id} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '2px 0', fontSize: 12 }}>
             <input
               type="checkbox"
               checked={c.done}
@@ -134,8 +134,18 @@ function StopInspector({ stopId }) {
                 })
               }
             />
-            <span style={c.done ? { textDecoration: 'line-through', color: 'var(--faint)' } : undefined}>{c.text}</span>
-          </label>
+            <span style={{ flex: 1, ...(c.done ? { textDecoration: 'line-through', color: 'var(--faint)' } : {}) }}>
+              {c.text}
+            </span>
+            <button
+              className="icon-btn danger"
+              title="Remove task"
+              style={{ width: 20, height: 20 }}
+              onClick={() => patchStop({ checklist: stop.checklist.filter((x) => x.id !== c.id) })}
+            >
+              <X size={11} />
+            </button>
+          </div>
         ))}
         <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
           <input
@@ -164,7 +174,7 @@ function StopInspector({ stopId }) {
       </div>
 
       <div className="panel">
-        <div className="section-label">Briefing · what matters here</div>
+        <div className="section-label">Notes</div>
         <textarea
           className="input"
           placeholder="Capture planning notes, constraints, decisions, or reminders…"
@@ -172,6 +182,20 @@ function StopInspector({ stopId }) {
           onChange={(e) => patchStop({ notes: e.target.value })}
         />
       </div>
+
+      <button
+        className="btn danger"
+        onClick={() => {
+          updateTrip((t) => ({
+            ...t,
+            stops: t.stops.filter((s) => s.id !== stopId),
+            manualOrder: (t.manualOrder || []).filter((x) => x !== stopId),
+          }))
+          setSelection(null)
+        }}
+      >
+        <Trash2 size={12} /> Remove this stop
+      </button>
     </>
   )
 }
@@ -184,7 +208,7 @@ function LegInspector({ legIdx }) {
   return (
     <>
       <div className="panel">
-        <div className="section-label">Transit leg</div>
+        <div className="section-label">Travel leg</div>
         <div style={{ fontSize: 14, fontWeight: 800, textTransform: 'uppercase' }}>
           {stopById.get(leg.fromId)?.name} → {stopById.get(leg.toId)?.name}
         </div>
@@ -212,7 +236,7 @@ function SnapshotInspector() {
   return (
     <>
       <div className="panel">
-        <div className="section-label">Operation snapshot</div>
+        <div className="section-label">Trip snapshot</div>
         <div style={{ fontSize: 15, fontWeight: 800, textTransform: 'uppercase' }}>{trip.name}</div>
         <div style={{ fontSize: 11, color: 'var(--muted)', margin: '2px 0 10px' }}>
           {fmtDateTime(trip.startDateTime)} → {fmtDateTime(trip.endDateTime)}

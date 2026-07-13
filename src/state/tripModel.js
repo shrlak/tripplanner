@@ -9,6 +9,28 @@ export const FAMILY_COLORS = ['#58a6ff', '#3fb950', '#d29922', '#bc8cff', '#f851
 
 export const MEAL_TYPES = ['cook-in', 'reservation', 'pack-out', 'walk-in']
 
+// Stored keys stay stable for saved trips; only the displayed labels changed.
+export const MEAL_TYPE_LABELS = {
+  'cook-in': 'self-catered',
+  reservation: 'reservation',
+  'pack-out': 'packed',
+  'walk-in': 'walk-in',
+}
+
+export const TRAVEL_MODES = [
+  { id: 'driving', label: 'Drive', verb: 'DRIVE' },
+  { id: 'cycling', label: 'Bike', verb: 'BIKE' },
+  { id: 'walking', label: 'Walk', verb: 'WALK' },
+]
+
+export function travelModeOf(trip) {
+  return trip?.travelMode || 'driving'
+}
+
+export function travelVerb(trip) {
+  return TRAVEL_MODES.find((m) => m.id === travelModeOf(trip))?.verb || 'DRIVE'
+}
+
 export const ACTIVITY_WINDOWS = ['early start', 'morning', 'afternoon', 'evening', 'all day', 'flexible']
 
 export const ACTIVITY_STATUS = ['go', 'watch', 'hold']
@@ -50,9 +72,10 @@ export function createTrip(partial = {}) {
     startDateTime: start.toISOString(),
     endDateTime: end.toISOString(),
     routeMode: 'optimized', // 'optimized' | 'manual'
+    travelMode: 'driving', // 'driving' | 'cycling' | 'walking'
     manualOrder: [], // middle-stop ids in user order
     stops: [],
-    families: [createFamily({ name: 'Unit 1' })],
+    families: [createFamily({ name: 'Group 1' })],
     activities: [],
     meals: [],
     lodging: [],

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { usePersistedTripState } from './usePersistedTripState.js'
-import { getOrigin, getDestination, manualOrderedMiddles, locatedStops, createTrip } from './tripModel.js'
+import { getOrigin, getDestination, manualOrderedMiddles, locatedStops, createTrip, travelModeOf } from './tripModel.js'
 import { buildSeedTrip } from './seedTrip.js'
 import { getDurationMatrix, getRoute } from '../lib/routing.js'
 import { optimizeMiddleOrder } from '../lib/optimizer.js'
@@ -48,6 +48,26 @@ export function TripProvider({ children }) {
     setState((prev) => ({ ...prev, trips: { ...prev.trips, [seed.id]: seed }, activeTripId: seed.id }))
   }, [setState])
 
+  const deleteTrip = useCallback(
+    (id) => {
+      setState((prev) => {
+        const trips = { ...prev.trips }
+        delete trips[id]
+        let activeTripId = prev.activeTripId
+        if (activeTripId === id) {
+          activeTripId = Object.keys(trips)[0]
+          if (!activeTripId) {
+            const fresh = createTrip()
+            trips[fresh.id] = fresh
+            activeTripId = fresh.id
+          }
+        }
+        return { ...prev, trips, activeTripId }
+      })
+    },
+    [setState],
+  )
+
   const importTrip = useCallback(
     (tripJson) => {
       if (!tripJson?.id || !Array.isArray(tripJson.stops)) throw new Error('Not a trip file')
@@ -70,12 +90,13 @@ export function TripProvider({ children }) {
   const destination = getDestination(trip)
   const middles = manualOrderedMiddles(trip)
 
+  const travelMode = travelModeOf(trip)
   const routeKey = useMemo(() => {
     const pts = [origin, ...middles, destination]
       .filter((s) => s && Number.isFinite(s.lat))
       .map((s) => `${s.id}:${s.lat.toFixed(4)},${s.lon.toFixed(4)}`)
-    return JSON.stringify({ pts, mode: trip.routeMode })
-  }, [origin, middles, destination, trip.routeMode])
+    return JSON.stringify({ pts, mode: trip.routeMode, travelMode })
+  }, [origin, middles, destination, trip.routeMode, travelMode])
 
   const routeSeq = useRef(0)
   useEffect(() => {
@@ -96,13 +117,16 @@ export function TripProvider({ children }) {
         let estimated = false
         if (trip.routeMode === 'optimized' && o && d && mids.length > 1) {
           const matrixStops = [o, ...mids, d]
-          const matrix = await getDurationMatrix(matrixStops.map((s) => ({ lat: s.lat, lon: s.lon })))
+          const matrix = await getDurationMatrix(
+            matrixStops.map((s) => ({ lat: s.lat, lon: s.lon })),
+            travelMode,
+          )
           estimated = matrix.estimated
           const order = optimizeMiddleOrder(matrix.durations)
           orderedMids = order.map((idx) => matrixStops[idx])
         }
         const ordered = [o, ...orderedMids, d].filter(Boolean)
-        const route = await getRoute(ordered.map((s) => ({ lat: s.lat, lon: s.lon })))
+        const route = await getRoute(ordered.map((s) => ({ lat: s.lat, lon: s.lon })), travelMode)
         if (seq !== routeSeq.current) return
         setRouteData({
           orderedIds: ordered.map((s) => s.id),
@@ -156,8 +180,10 @@ export function TripProvider({ children }) {
         trip.families
           .filter((f) => f.origin && Number.isFinite(f.origin.lat))
           .map((f) => [f.id, f.origin.lat.toFixed(3), f.origin.lon.toFixed(3)]),
-      ) + (destination && Number.isFinite(destination?.lat) ? `${destination.lat},${destination.lon}` : ''),
-    [trip.families, destination],
+      ) +
+      (destination && Number.isFinite(destination?.lat) ? `${destination.lat},${destination.lon}` : '') +
+      travelMode,
+    [trip.families, destination, travelMode],
   )
   useEffect(() => {
     let alive = true
@@ -170,10 +196,13 @@ export function TripProvider({ children }) {
     const fams = trip.families.filter((f) => f.origin && Number.isFinite(f.origin.lat))
     Promise.all(
       fams.map(async (f) => {
-        const route = await getRoute([
-          { lat: f.origin.lat, lon: f.origin.lon },
-          { lat: anchor.lat, lon: anchor.lon },
-        ])
+        const route = await getRoute(
+          [
+            { lat: f.origin.lat, lon: f.origin.lon },
+            { lat: anchor.lat, lon: anchor.lon },
+          ],
+          travelMode,
+        )
         const driveSec = route.legs.reduce((a, l) => a + l.driveSec, 0)
         const geometry = route.legs.flatMap((l) => l.geometry)
         const depart = new Date(trip.startDateTime)
@@ -294,6 +323,7 @@ export function TripProvider({ children }) {
     updateTrip,
     switchTrip,
     createNewTrip,
+    deleteTrip,
     resetToDemo,
     importTrip,
     plan,

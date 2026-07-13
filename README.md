@@ -1,7 +1,7 @@
 # Trip Command Center
 
-Plan trips like an operation: optimized routes, arrival windows, weather intel, meal
-logistics, expense splits, and a giant dark map — inspired by
+Plan any trip like an operation: optimized routes, arrival times, weather for every stop,
+day plans, meals, stays, expense splits, and a giant map — inspired by
 [palantir-for-family-trips](https://github.com/andrewjiang/palantir-for-family-trips),
 rebuilt to be **completely free to run**. No API keys, no accounts, no billing, no backend.
 
@@ -9,38 +9,44 @@ rebuilt to be **completely free to run**. No API keys, no accounts, no billing, 
 
 ## What it does
 
-- **Trip setup** — enter start/end dates, an origin, a final destination, optional
-  overnight stopovers, and every place you want to visit.
-- **Best-path planning** — the app fetches real driving times between all stops and
-  auto-orders them for the shortest total drive (nearest-neighbor + 2-opt over the OSRM
-  duration matrix). Toggle to **manual order** and drag stops to rearrange; times
-  recalculate live.
-- **Leg manifest** — drive time and distance for every leg, arrival/departure ETA at every
-  stop, total drive, total distance, and an on-schedule / overrun check against your end date.
+- **Trip setup** — enter start/end dates, a start location, a final destination, optional
+  overnight stops, and every place you want to visit (live location search, worldwide).
+- **Best-path planning** — real travel times between all stops, auto-ordered for the
+  shortest total route (nearest-neighbor + 2-opt over the OSRM duration matrix). Toggle to
+  **manual order** and drag stops to rearrange; times recalculate live.
+- **Travel modes** — plan the same trip by **car, bike, or on foot**; travel times, the
+  optimized path, and the schedule all follow the chosen mode.
+- **Planned path manifest** — travel time and distance for every leg, arrival/departure
+  time at every stop scheduled across your days, and an on-schedule / overrun check
+  against your end date.
 - **Weather for each location** — Open-Meteo daily forecast on each stop's arrival date
-  (high/low, conditions, precipitation), in the inspector rail, the map's weather-intel
-  overlay, and the per-day timeline strip.
-- **Command dashboard** — dark ops-center map with numbered stops, route polylines,
-  inbound family convoy routes, a day-by-day mission timeline, and a scenario time scrub
-  with route playback.
-- **Mission launch** — a countdown overlay for transit day, because group travel deserves
-  drama.
-- **Full logistics surfaces** — activity board (day missions with fallbacks), shared meal
-  plan, accommodations, expense ledger with even-split settlement, and travel-unit
-  (family) management.
+  (high/low, conditions, precipitation) in the inspector, the map overlay, and the
+  day-by-day timeline.
+- **Map modes** — switch the big map between dark ops, light, streets, satellite, and
+  terrain base layers. **Right-click anywhere on the map to add a stop** (named by
+  reverse geocoding).
+- **Command dashboard** — numbered stops, route lines, inbound routes for each travel
+  group, a day-by-day timeline, and timeline playback that animates everyone across the
+  map.
+- **Departure day launch** — a countdown overlay for the day you leave, because group
+  travel deserves drama.
+- **Full logistics surfaces** — day plans with backup plans, meal plan, stays, expense
+  ledger with even-split settlement, and travel groups.
+- **Easy add & remove everywhere** — every stop, day plan, meal, stay, expense, group,
+  checklist item, and trip has an obvious add control and a one-click remove.
 - **Autosave** — everything persists to your browser's localStorage. Export/import trips
-  as JSON. Multiple trips supported.
+  as JSON. Multiple trips, deletable at any time.
 
 ![Route setup](docs/route-setup.png)
-![Mission launch](docs/mission-launch.png)
+![Departure day launch](docs/mission-launch.png)
 
 ## Zero-cost by design
 
 | Capability | Service | Cost |
 |---|---|---|
-| Map tiles | [CARTO dark basemap](https://carto.com/attributions) (OpenStreetMap data) | Free with attribution |
-| Driving times & routes | [OSRM public server](https://project-osrm.org/) | Free, keyless |
-| Location search | [Photon](https://photon.komoot.io/) (OpenStreetMap geocoder) | Free, keyless |
+| Map tiles (5 modes) | [CARTO](https://carto.com/attributions) dark/light, [OpenStreetMap](https://www.openstreetmap.org) streets, Esri satellite imagery, [OpenTopoMap](https://opentopomap.org) terrain | Free with attribution |
+| Travel times & routes | [FOSSGIS OSRM](https://routing.openstreetmap.de/) (car / bike / foot) + [OSRM demo](https://project-osrm.org/) fallback | Free, keyless |
+| Location search & reverse geocoding | [Photon](https://photon.komoot.io/) (OpenStreetMap geocoder) | Free, keyless |
 | Weather | [Open-Meteo](https://open-meteo.com/) | Free, keyless (non-commercial) |
 | Fonts | Inter + Geist Mono, bundled locally via Fontsource | Free, open source |
 | Storage | Browser localStorage | Free |
@@ -63,8 +69,8 @@ npm run dev
 ```
 
 Open the printed URL (default `http://localhost:5173`). A demo trip loads on first visit —
-open **Route & trip setup** (second sidebar icon) to plan your own, or press
-**Load demo trip** to get the sample back.
+open **Setup** (second sidebar icon) to plan your own, or press **Load demo trip** to get
+the sample back.
 
 ```bash
 npm run build   # static production build in dist/
@@ -86,10 +92,11 @@ State is plain JSON in localStorage — no server, no database.
 ## Where things live
 
 - `src/state/` — trip data model, localStorage persistence, demo seed, app context
-- `src/lib/` — geocoding, OSRM routing + caching + offline fallback, path optimizer,
-  day-by-day scheduler, Open-Meteo weather, playback interpolation
-- `src/views/` — one file per surface (dashboard, setup, activities, meals, lodging,
-  expenses, families); dashboard subcomponents in `src/views/dashboard/`
-- `src/overlays/MissionLaunch.jsx` — the countdown overlay
+- `src/lib/` — geocoding (search + reverse), OSRM routing per travel mode with caching and
+  offline fallback, path optimizer, day-by-day scheduler, Open-Meteo weather, map base
+  layers, playback interpolation
+- `src/views/` — one file per surface (dashboard, setup, day planner, meals, stays,
+  expenses, groups); dashboard subcomponents in `src/views/dashboard/`
+- `src/overlays/MissionLaunch.jsx` — the departure-day countdown overlay
 - `src/index.css` — the whole design system (dark-only tokens per the reference's
   Palantir-style spec)

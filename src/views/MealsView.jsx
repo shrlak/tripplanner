@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Plus, MapPin } from 'lucide-react'
+import { Plus, MapPin, Trash2 } from 'lucide-react'
 import { useTrip } from '../state/TripContext.jsx'
-import { uid, MEAL_TYPES } from '../state/tripModel.js'
+import { uid, MEAL_TYPES, MEAL_TYPE_LABELS } from '../state/tripModel.js'
 import { fmtDayLabel } from '../lib/format.js'
 import { tripDays } from './ActivitiesView.jsx'
 
@@ -47,9 +47,9 @@ export default function MealsView() {
     <div className="board">
       <div className="board-list" style={{ minWidth: 0 }}>
         <div>
-          <div className="section-label">Meal logistics</div>
+          <div className="section-label">Meals</div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span className="panel-title">Shared feeding plan</span>
+            <span className="panel-title">Meal plan</span>
             <span style={{ fontSize: 10, color: 'var(--faint)' }}>ownership + prep</span>
           </div>
         </div>
@@ -60,9 +60,20 @@ export default function MealsView() {
               <span className="mono" style={{ fontSize: 10, color: 'var(--muted)' }}>
                 {dayLabel(m.dayIdx)} {fmtClock(m.time)}
               </span>
-              <span className={`chip ${typeChip[m.type] || ''}`}>{m.type}</span>
+              <span className={`chip ${typeChip[m.type] || ''}`}>{MEAL_TYPE_LABELS[m.type] || m.type}</span>
             </div>
             <div className="mc-title" style={{ marginTop: 4 }}>{m.title}</div>
+            <button
+              className="icon-btn danger card-del"
+              title="Remove meal"
+              onClick={(e) => {
+                e.stopPropagation()
+                updateTrip((t) => ({ ...t, meals: t.meals.filter((x) => x.id !== m.id) }))
+                if (selectedId === m.id) setSelectedId(null)
+              }}
+            >
+              <Trash2 size={12} />
+            </button>
             <div className="mc-window">{m.location || 'Location TBD'}</div>
             {m.ownerId && familyById.get(m.ownerId) && (
               <div style={{ fontSize: 10, color: familyById.get(m.ownerId).color, marginTop: 4 }}>
@@ -87,7 +98,7 @@ export default function MealsView() {
           <div className="form-row" style={{ marginTop: 6 }}>
             <select className="input" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
               {MEAL_TYPES.map((t) => (
-                <option key={t} value={t}>{t}</option>
+                <option key={t} value={t}>{MEAL_TYPE_LABELS[t]}</option>
               ))}
             </select>
           </div>
@@ -103,19 +114,19 @@ export default function MealsView() {
           <>
             <div className="panel">
               <div className="section-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                Venue planning surface
-                <span className={`chip ${typeChip[selected.type] || ''}`}>{selected.type}</span>
+                Meal details
+                <span className={`chip ${typeChip[selected.type] || ''}`}>{MEAL_TYPE_LABELS[selected.type] || selected.type}</span>
               </div>
               <h2 style={{ margin: '4px 0 2px', fontSize: 22, textTransform: 'uppercase', letterSpacing: '.02em' }}>
                 {selected.title}
               </h2>
               <div style={{ fontSize: 12, color: 'var(--muted)' }}>
-                {dayLabel(selected.dayIdx)} at {fmtClock(selected.time)} · {selected.type}
+                {dayLabel(selected.dayIdx)} at {fmtClock(selected.time)} · {MEAL_TYPE_LABELS[selected.type] || selected.type}
               </div>
             </div>
 
             <div className="panel">
-              <div className="section-label">Venue intel</div>
+              <div className="section-label">Venue</div>
               <label className="field-label"><MapPin size={10} style={{ marginRight: 4 }} />Location</label>
               <input className="input" value={selected.location} placeholder="Venue address or description" onChange={(e) => patchMeal(selected.id, { location: e.target.value })} />
               <div className="form-row" style={{ marginTop: 10 }}>
@@ -144,7 +155,7 @@ export default function MealsView() {
               <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
                 {MEAL_TYPES.map((t) => (
                   <button key={t} className={`family-chip${selected.type === t ? ' active' : ''}`} onClick={() => patchMeal(selected.id, { type: t })}>
-                    {t}
+                    {MEAL_TYPE_LABELS[t]}
                   </button>
                 ))}
                 <button
@@ -161,7 +172,7 @@ export default function MealsView() {
             </div>
 
             <div className="panel">
-              <div className="section-label">Feeding note</div>
+              <div className="section-label">Notes</div>
               <textarea
                 className="input"
                 placeholder="Capture grocery strategy, allergy notes, kid fallback meals, or timing calls for restaurant stops…"
@@ -171,14 +182,14 @@ export default function MealsView() {
             </div>
           </>
         ) : (
-          <div className="empty-note" style={{ marginTop: 40 }}>Select a meal to open its venue surface.</div>
+          <div className="empty-note" style={{ marginTop: 40 }}>Select a meal to see its details.</div>
         )}
       </div>
 
       <div className="board-inspector">
         {selected && (
           <div className="panel">
-            <div className="section-label">Selected item · context snapshot</div>
+            <div className="section-label">Selected meal</div>
             <div className="kv-row"><span className="k">Window</span><span className="v">{dayLabel(selected.dayIdx)} {fmtClock(selected.time)}</span></div>
             <div className="kv-row"><span className="k">Type</span><span className="v">{selected.type}</span></div>
             <div className="kv-row"><span className="k">Owner</span><span className="v">{familyById.get(selected.ownerId)?.name || 'Unassigned'}</span></div>

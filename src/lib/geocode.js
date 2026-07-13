@@ -34,3 +34,21 @@ export async function searchPlaces(query, { limit = 6, signal } = {}) {
   cache.set(key, results)
   return results
 }
+
+// Name a point dropped on the map. Falls back to raw coordinates so adding a
+// stop always works even when the geocoder is unreachable.
+export async function reverseGeocode(lat, lon) {
+  try {
+    const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`)
+    if (!res.ok) throw new Error(`Photon ${res.status}`)
+    const data = await res.json()
+    const p = data.features?.[0]?.properties
+    if (p) {
+      const detail = [p.city || p.town || p.village, p.state, p.country].filter(Boolean).join(', ')
+      return { name: p.name || p.street || detail || 'Dropped pin', detail }
+    }
+  } catch {
+    /* fall through */
+  }
+  return { name: 'Dropped pin', detail: `${lat.toFixed(4)}, ${lon.toFixed(4)}` }
+}

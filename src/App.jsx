@@ -22,8 +22,10 @@ const VIEWS = {
 }
 
 function Shell() {
-  const [view, setView] = useState('dashboard')
-  const { launch } = useTrip()
+  const { trip, launch } = useTrip()
+  // First run / fresh trips land on the setup form, not an empty dashboard.
+  const hasRoute = trip.stops.filter((s) => Number.isFinite(s.lat)).length >= 2
+  const [view, setView] = useState(hasRoute ? 'dashboard' : 'setup')
   const View = VIEWS[view] || DashboardView
   return (
     <div className="app-shell">
