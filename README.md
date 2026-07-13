@@ -70,6 +70,14 @@ open **Route & trip setup** (second sidebar icon) to plan your own, or press
 npm run build   # static production build in dist/
 ```
 
+## Deploy to GitHub Pages
+
+A workflow at `.github/workflows/deploy-pages.yml` builds and publishes the site on every
+push to the default branch. One-time setup: in the repository's **Settings → Pages**, set
+**Source** to **GitHub Actions**. The site then goes live at
+`https://<your-username>.github.io/tripplanner/` (the build uses relative asset paths, so
+it works from any URL). You can also trigger a deploy manually from the Actions tab.
+
 ## Stack
 
 React 19 · Vite · Leaflet + react-leaflet · Framer Motion · Lucide icons · date-fns.
