@@ -118,7 +118,7 @@ export default function SetupView({ setView }) {
           <input
             className="input"
             value={trip.name}
-            onChange={(e) => updateTrip({ name: e.target.value.toUpperCase() })}
+            onChange={(e) => updateTrip({ name: e.target.value })}
           />
           <div className="form-row" style={{ marginTop: 10 }}>
             <div>
@@ -282,7 +282,7 @@ export default function SetupView({ setView }) {
                 const legOut = plan.legs[i]
                 return (
                   <React.Fragment key={s.id}>
-                    <div className="stop-row" style={{ borderColor: i === 0 ? 'rgba(63,185,80,.4)' : i === plan.orderedStops.length - 1 ? 'rgba(210,153,34,.4)' : undefined }}>
+                    <div className="stop-row" style={{ borderColor: i === 0 ? 'rgba(26,127,55,.4)' : i === plan.orderedStops.length - 1 ? 'rgba(154,103,0,.4)' : undefined }}>
                       <span className="mono" style={{ fontSize: 10, color: 'var(--muted)', width: 16, textAlign: 'right' }}>{i + 1}</span>
                       <div className="stop-name">
                         <div className="n">{s.name}</div>

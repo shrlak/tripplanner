@@ -30,7 +30,7 @@ export default function IconSidebar({ view, setView }) {
           aria-label={title}
           onClick={() => setView(id)}
         >
-          <Icon size={16} />
+          <Icon size={20} />
           <span className="nav-label">{label}</span>
         </button>
       ))}

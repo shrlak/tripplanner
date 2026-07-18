@@ -26,7 +26,7 @@ export default function FamiliesView() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <input
                   className="input"
-                  style={{ fontSize: 15, fontWeight: 800, textTransform: 'uppercase', color: f.color, width: '65%' }}
+                  style={{ fontSize: 15, fontWeight: 800, color: f.color, width: '65%' }}
                   value={f.name}
                   placeholder="Group name"
                   onChange={(e) => patch(f.id, { name: e.target.value })}
@@ -78,11 +78,12 @@ export default function FamiliesView() {
                       key={c}
                       onClick={() => patch(f.id, { color: c })}
                       style={{
-                        width: 20,
-                        height: 20,
+                        width: 22,
+                        height: 22,
                         borderRadius: '50%',
                         background: c,
-                        border: f.color === c ? '2px solid #fff' : '2px solid transparent',
+                        border: '2px solid #fff',
+                        boxShadow: f.color === c ? '0 0 0 2px var(--text)' : '0 0 0 1px var(--border-strong)',
                         cursor: 'pointer',
                       }}
                     />

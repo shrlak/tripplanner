@@ -5,7 +5,7 @@ export const uid = () => Math.random().toString(36).slice(2, 10)
 
 export const STOP_KINDS = ['origin', 'stopover', 'poi', 'destination']
 
-export const FAMILY_COLORS = ['#58a6ff', '#3fb950', '#d29922', '#bc8cff', '#f85149', '#39c5cf']
+export const FAMILY_COLORS = ['#0071e3', '#1a7f37', '#9a6700', '#9436b9', '#cf222e', '#0f7b8a']
 
 export const MEAL_TYPES = ['cook-in', 'reservation', 'pack-out', 'walk-in']
 
@@ -68,7 +68,7 @@ export function createTrip(partial = {}) {
   const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 10, 18, 0)
   return {
     id: uid(),
-    name: 'NEW OPERATION',
+    name: 'New Trip',
     startDateTime: start.toISOString(),
     endDateTime: end.toISOString(),
     routeMode: 'optimized', // 'optimized' | 'manual'

@@ -42,7 +42,7 @@ export default function LodgingView() {
             </div>
             <input
               className="input"
-              style={{ fontSize: 15, fontWeight: 700, textTransform: 'uppercase' }}
+              style={{ fontSize: 15, fontWeight: 700 }}
               value={l.name}
               onChange={(e) => patch(l.id, { name: e.target.value })}
             />

@@ -19,7 +19,7 @@ function loadInitialState() {
   return {
     trips: { [seed.id]: seed },
     activeTripId: seed.id,
-    prefs: { tempUnit: 'F', distUnit: 'mi', mapMode: 'dark' },
+    prefs: { tempUnit: 'F', distUnit: 'mi', mapMode: 'light' },
   }
 }
 
