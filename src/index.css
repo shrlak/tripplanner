@@ -45,6 +45,68 @@
   --inspector-w: 336px;
   --sidebar-w: 84px;
   --topbar-h: 60px;
+
+  color-scheme: light;
+}
+
+/* Dark appearance — Apple's own documented dark-mode system colors, applied
+   over HIG-style elevation grays (each surface step a little lighter than
+   the last, same structure as macOS/iOS dark mode). Toggled via a
+   `data-theme` attribute on <html>; "auto" additionally requires the OS to
+   be in dark mode. */
+:root[data-theme='dark'] {
+  --bg: #000000;
+  --surface: #1c1c1e;
+  --surface-2: #2c2c2e;
+  --surface-3: #3a3a3c;
+  --border: #38383a;
+  --border-strong: #48484a;
+  --text: #f5f5f7;
+  --muted: #98989d;
+  --faint: #68686d;
+
+  --red: #ff453a;
+  --amber: #ff9f0a;
+  --green: #32d74b;
+  --blue: #0a84ff;
+  --blue-hover: #409cff;
+  --violet: #bf5af2;
+
+  --red-dim: rgba(255, 69, 58, 0.18);
+  --amber-dim: rgba(255, 159, 10, 0.18);
+  --green-dim: rgba(50, 215, 75, 0.18);
+  --blue-dim: rgba(10, 132, 255, 0.18);
+  --violet-dim: rgba(191, 90, 242, 0.18);
+
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'] {
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --surface-2: #2c2c2e;
+    --surface-3: #3a3a3c;
+    --border: #38383a;
+    --border-strong: #48484a;
+    --text: #f5f5f7;
+    --muted: #98989d;
+    --faint: #68686d;
+
+    --red: #ff453a;
+    --amber: #ff9f0a;
+    --green: #32d74b;
+    --blue: #0a84ff;
+    --blue-hover: #409cff;
+    --violet: #bf5af2;
+
+    --red-dim: rgba(255, 69, 58, 0.18);
+    --amber-dim: rgba(255, 159, 10, 0.18);
+    --green-dim: rgba(50, 215, 75, 0.18);
+    --blue-dim: rgba(10, 132, 255, 0.18);
+    --violet-dim: rgba(191, 90, 242, 0.18);
+
+    color-scheme: dark;
+  }
 }
 
 * { box-sizing: border-box; }
@@ -769,3 +831,91 @@ textarea.input { resize: vertical; min-height: 72px; line-height: 1.5; }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ============================================================
+   Responsive layout — tablet & phone.
+   Desktop is a fixed-viewport "app shell" where every rail scrolls
+   independently; below the breakpoint that collapses into one
+   naturally-scrolling page, and the icon sidebar becomes an iOS-style
+   fixed bottom tab bar.
+   ============================================================ */
+
+@media (max-width: 900px) {
+  body { overflow-y: auto; overflow-x: hidden; }
+
+  .app-shell { display: block; height: auto; min-height: 100%; }
+
+  .command-bar { position: sticky; top: 0; z-index: 30; }
+
+  .icon-sidebar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: stretch;
+    padding: 4px 4px calc(4px + env(safe-area-inset-bottom, 0px));
+    border-right: 0;
+    border-top: 1px solid var(--border);
+  }
+  .icon-sidebar .nav-btn { width: auto; flex: 1; height: 52px; }
+  .icon-sidebar .sidebar-spacer { display: none; }
+
+  .view-root { height: auto; overflow: visible; padding-bottom: 64px; }
+
+  .dashboard { display: block; height: auto; }
+  .ops-rail, .inspector-rail {
+    border: 0;
+    border-top: 1px solid var(--border);
+    max-height: none;
+    overflow: visible;
+  }
+  .map-cell { height: 60vh; min-height: 320px; }
+  .timeline-cell { height: 232px; border-top: 1px solid var(--border); }
+
+  .board { display: block; height: auto; }
+  .board-list, .board-inspector {
+    border: 0;
+    border-top: 1px solid var(--border);
+    max-height: 46vh;
+  }
+
+  .setup-grid { grid-template-columns: 1fr; padding: 16px; }
+
+  .launch-lower { flex-direction: column; align-items: stretch; }
+  .launch-target { width: 100%; }
+
+  /* Wide tables (the expense ledger) scroll horizontally within their
+     card instead of blowing out the viewport width. */
+  .panel:has(> table.data-table) { overflow-x: auto; }
+
+  /* Ad-hoc "content + fixed-width side panel" grids (Expenses, Packing) are
+     set inline with a hard minmax() floor that doesn't fit a phone — force
+     them to stack. !important is required to beat the inline style. */
+  .split-grid { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 640px) {
+  .command-bar { padding: 0 12px; gap: 10px; }
+  .command-bar .app-title,
+  .cmdbar-tripname,
+  .cmdbar-search,
+  .cmdbar-savelabel {
+    display: none;
+  }
+
+  /* Eight sections is past what a labeled bottom tab bar can hold at phone
+     widths (iOS itself caps a visible tab bar around five) — icons alone,
+     evenly spaced, stay legible and keep every destination one tap away
+     instead of truncating or overflowing. */
+  .icon-sidebar .nav-label { display: none; }
+  .icon-sidebar .nav-btn { height: 46px; }
+
+  .setup-grid { padding: 12px; gap: 14px; }
+  .form-row { flex-direction: column; }
+
+  .launch-modal { padding: 22px 20px; }
+  .launch-modal h1 { font-size: 28px; }
+}

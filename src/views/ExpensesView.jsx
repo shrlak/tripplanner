@@ -40,7 +40,7 @@ export default function ExpensesView() {
       <div className="section-label">Expenses</div>
       <div className="panel-title" style={{ marginBottom: 14 }}>Cost ledger &amp; even split</div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(520px, 1fr) 320px', gap: 14, maxWidth: 1200, alignItems: 'start' }}>
+      <div className="split-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(520px, 1fr) 320px', gap: 14, maxWidth: 1200, alignItems: 'start' }}>
         <div className="panel" style={{ padding: 0 }}>
           <table className="data-table">
             <thead>

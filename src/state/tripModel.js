@@ -35,6 +35,29 @@ export const ACTIVITY_WINDOWS = ['early start', 'morning', 'afternoon', 'evening
 
 export const ACTIVITY_STATUS = ['go', 'watch', 'hold']
 
+export const PACKING_CATEGORIES = ['Clothing', 'Toiletries', 'Electronics', 'Documents', 'Health', 'Gear', 'Other']
+
+// One-click starter list for the packing view's empty state — the common,
+// easy-to-forget items across most trips, pre-sorted into categories.
+export const PACKING_STARTER_ITEMS = [
+  { text: 'Phone charger', category: 'Electronics' },
+  { text: 'Portable battery pack', category: 'Electronics' },
+  { text: 'Camera', category: 'Electronics' },
+  { text: 'ID / passport', category: 'Documents' },
+  { text: 'Driver’s license', category: 'Documents' },
+  { text: 'Travel/hotel confirmations', category: 'Documents' },
+  { text: 'Insurance cards', category: 'Documents' },
+  { text: 'Toothbrush & toothpaste', category: 'Toiletries' },
+  { text: 'Sunscreen', category: 'Toiletries' },
+  { text: 'Prescription medications', category: 'Health' },
+  { text: 'First aid kit', category: 'Health' },
+  { text: 'Reusable water bottle', category: 'Gear' },
+  { text: 'Daypack', category: 'Gear' },
+  { text: 'Weather-appropriate jacket', category: 'Clothing' },
+  { text: 'Comfortable walking shoes', category: 'Clothing' },
+  { text: 'Sleepwear', category: 'Clothing' },
+]
+
 export function createStop(partial = {}) {
   return {
     id: uid(),
@@ -80,6 +103,7 @@ export function createTrip(partial = {}) {
     meals: [],
     lodging: [],
     expenses: [],
+    packing: [],
     ...partial,
   }
 }
