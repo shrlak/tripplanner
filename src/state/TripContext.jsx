@@ -6,6 +6,7 @@ import { getDurationMatrix, getRoute } from '../lib/routing.js'
 import { optimizeMiddleOrder } from '../lib/optimizer.js'
 import { buildSchedule } from '../lib/schedule.js'
 import { fetchTripWeather, pointKeyOf } from '../lib/weather.js'
+import { applyTheme } from '../lib/theme.js'
 
 const TripCtx = createContext(null)
 export const useTrip = () => useContext(TripCtx)
@@ -32,6 +33,17 @@ export function TripProvider({ children }) {
     (patch) => setState((prev) => ({ ...prev, prefs: { ...prev.prefs, ...patch } })),
     [setState],
   )
+
+  const theme = state.prefs.theme || 'light'
+  useEffect(() => {
+    applyTheme(theme)
+    if (theme !== 'auto') return
+    // In "auto" mode, keep following the OS setting live.
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const onChange = () => applyTheme('auto')
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [theme])
 
   const switchTrip = useCallback(
     (id) => setState((prev) => (prev.trips[id] ? { ...prev, activeTripId: id } : prev)),

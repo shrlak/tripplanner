@@ -7,6 +7,7 @@ import {
   Home,
   Receipt,
   Users,
+  Package,
 } from 'lucide-react'
 
 const NAV = [
@@ -15,6 +16,7 @@ const NAV = [
   { id: 'activities', icon: CalendarRange, label: 'Days', title: 'Day planner' },
   { id: 'meals', icon: UtensilsCrossed, label: 'Meals', title: 'Meal plan' },
   { id: 'lodging', icon: Home, label: 'Stays', title: 'Where you are staying' },
+  { id: 'packing', icon: Package, label: 'Packing', title: 'Packing list' },
   { id: 'expenses', icon: Receipt, label: 'Costs', title: 'Expenses & split' },
   { id: 'families', icon: Users, label: 'Groups', title: 'Travel groups' },
 ]

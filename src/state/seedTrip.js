@@ -233,5 +233,14 @@ export function buildSeedTrip() {
     { id: 'e5', desc: 'Picnic groceries', amount: 54, payerId: southCrew.id, category: 'food', dayIdx: 1 },
   ]
 
+  trip.packing = [
+    { id: 'pk1', text: 'Phone charger', category: 'Electronics', qty: 2, assignedTo: null, packed: true },
+    { id: 'pk2', text: 'ID / passport', category: 'Documents', qty: 1, assignedTo: northCrew.id, packed: true },
+    { id: 'pk3', text: 'Sunscreen', category: 'Toiletries', qty: 1, assignedTo: southCrew.id, packed: false },
+    { id: 'pk4', text: 'Aquarium tickets (printed)', category: 'Documents', qty: 1, assignedTo: northCrew.id, packed: false },
+    { id: 'pk5', text: 'Beach towels', category: 'Gear', qty: 4, assignedTo: null, packed: false },
+    { id: 'pk6', text: 'Layers for coastal fog', category: 'Clothing', qty: 1, assignedTo: null, packed: false },
+  ]
+
   return trip
 }

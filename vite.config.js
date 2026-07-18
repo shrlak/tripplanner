@@ -6,4 +6,9 @@ export default defineConfig({
   // project sites (https://<user>.github.io/<repo>/).
   base: './',
   plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.js',
+  },
 })

@@ -80,13 +80,13 @@ export default function MissionLaunch() {
         <div className="launch-lower">
           <div className="countdown-ring">
             <svg width="132" height="132" viewBox="0 0 132 132">
-              <circle cx="66" cy="66" r={R} fill="none" stroke="#e5e5e7" strokeWidth="7" />
+              <circle cx="66" cy="66" r={R} fill="none" style={{ stroke: 'var(--border)' }} strokeWidth="7" />
               <motion.circle
                 cx="66"
                 cy="66"
                 r={R}
                 fill="none"
-                stroke="#9a6700"
+                style={{ stroke: 'var(--amber)' }}
                 strokeWidth="7"
                 strokeLinecap="round"
                 strokeDasharray={CIRC}

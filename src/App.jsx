@@ -1,15 +1,20 @@
-import React, { useState } from 'react'
+import React, { Suspense, lazy, useState } from 'react'
 import { TripProvider, useTrip } from './state/TripContext.jsx'
 import CommandBar from './components/CommandBar.jsx'
 import IconSidebar from './components/IconSidebar.jsx'
-import DashboardView from './views/DashboardView.jsx'
-import SetupView from './views/SetupView.jsx'
-import ActivitiesView from './views/ActivitiesView.jsx'
-import MealsView from './views/MealsView.jsx'
-import LodgingView from './views/LodgingView.jsx'
-import ExpensesView from './views/ExpensesView.jsx'
-import FamiliesView from './views/FamiliesView.jsx'
-import MissionLaunch from './overlays/MissionLaunch.jsx'
+
+// Lazy-loaded so the map (Leaflet) and drag-reorder (Framer Motion) code
+// only ships to whoever actually opens a view that needs them, instead of
+// bloating everyone's first paint.
+const DashboardView = lazy(() => import('./views/DashboardView.jsx'))
+const SetupView = lazy(() => import('./views/SetupView.jsx'))
+const ActivitiesView = lazy(() => import('./views/ActivitiesView.jsx'))
+const MealsView = lazy(() => import('./views/MealsView.jsx'))
+const LodgingView = lazy(() => import('./views/LodgingView.jsx'))
+const ExpensesView = lazy(() => import('./views/ExpensesView.jsx'))
+const FamiliesView = lazy(() => import('./views/FamiliesView.jsx'))
+const PackingView = lazy(() => import('./views/PackingView.jsx'))
+const MissionLaunch = lazy(() => import('./overlays/MissionLaunch.jsx'))
 
 const VIEWS = {
   dashboard: DashboardView,
@@ -19,6 +24,15 @@ const VIEWS = {
   lodging: LodgingView,
   expenses: ExpensesView,
   families: FamiliesView,
+  packing: PackingView,
+}
+
+function ViewFallback() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--faint)', fontSize: 12 }}>
+      Loading…
+    </div>
+  )
 }
 
 function Shell() {
@@ -32,9 +46,15 @@ function Shell() {
       <CommandBar view={view} setView={setView} />
       <IconSidebar view={view} setView={setView} />
       <main className="view-root">
-        <View setView={setView} />
+        <Suspense fallback={<ViewFallback />}>
+          <View setView={setView} />
+        </Suspense>
       </main>
-      {launch.open && <MissionLaunch />}
+      {launch.open && (
+        <Suspense fallback={null}>
+          <MissionLaunch />
+        </Suspense>
+      )}
     </div>
   )
 }

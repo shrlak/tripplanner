@@ -40,7 +40,7 @@ export function fmtDayShort(d) {
 
 export function fmtTemp(v, unit = 'F') {
   if (!Number.isFinite(v)) return '—'
-  return `${Math.round(v)} ${unit}`
+  return `${Math.round(v)} ${unit}`
 }
 
 export function fmtMoney(v) {
