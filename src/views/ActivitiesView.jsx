@@ -127,7 +127,7 @@ export default function ActivitiesView() {
                 Plan details
                 <span className={`chip ${statusChip[selected.status]}`}>{selected.status}</span>
               </div>
-              <h2 style={{ margin: '4px 0 2px', fontSize: 22, textTransform: 'uppercase', letterSpacing: '.02em' }}>
+              <h2 style={{ margin: '4px 0 2px', fontSize: 22, letterSpacing: '-0.01em' }}>
                 {selected.title}
               </h2>
               <div style={{ fontSize: 12, color: 'var(--muted)' }}>
@@ -224,7 +224,7 @@ export default function ActivitiesView() {
               )}
               {selected.description && <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 8 }}>{selected.description}</div>}
               {selected.fallback && (
-                <div className="mc-fallback" style={{ background: 'var(--amber-dim)', border: '1px solid rgba(210,153,34,.3)', borderRadius: 3, padding: 8, marginTop: 8 }}>
+                <div className="mc-fallback" style={{ background: 'var(--amber-dim)', border: '1px solid rgba(154,103,0,.3)', borderRadius: 10, padding: 10, marginTop: 8 }}>
                   <b>BACKUP:</b> {selected.fallback}
                 </div>
               )}

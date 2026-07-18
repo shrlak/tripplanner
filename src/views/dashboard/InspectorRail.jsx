@@ -67,7 +67,7 @@ function StopInspector({ stopId }) {
     <>
       <div className="panel">
         <div className="section-label">Location</div>
-        <div style={{ fontSize: 15, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.02em' }}>
+        <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: '-0.005em' }}>
           {stop.name}
         </div>
         <div style={{ fontSize: 11, color: 'var(--muted)', margin: '2px 0 8px' }}>
@@ -209,7 +209,7 @@ function LegInspector({ legIdx }) {
     <>
       <div className="panel">
         <div className="section-label">Travel leg</div>
-        <div style={{ fontSize: 14, fontWeight: 800, textTransform: 'uppercase' }}>
+        <div style={{ fontSize: 14, fontWeight: 800 }}>
           {stopById.get(leg.fromId)?.name} → {stopById.get(leg.toId)?.name}
         </div>
         <div style={{ marginTop: 8 }}>
@@ -237,7 +237,7 @@ function SnapshotInspector() {
     <>
       <div className="panel">
         <div className="section-label">Trip snapshot</div>
-        <div style={{ fontSize: 15, fontWeight: 800, textTransform: 'uppercase' }}>{trip.name}</div>
+        <div style={{ fontSize: 15, fontWeight: 800 }}>{trip.name}</div>
         <div style={{ fontSize: 11, color: 'var(--muted)', margin: '2px 0 10px' }}>
           {fmtDateTime(trip.startDateTime)} → {fmtDateTime(trip.endDateTime)}
         </div>

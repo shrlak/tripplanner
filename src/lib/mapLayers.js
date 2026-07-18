@@ -5,7 +5,7 @@ const OSM_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenS
 
 export const MAP_LAYERS = {
   dark: {
-    label: 'Dark ops',
+    label: 'Dark',
     url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
     subdomains: 'abcd',
     attribution: `${OSM_ATTR} &copy; <a href="https://carto.com/attributions">CARTO</a>`,
@@ -41,7 +41,7 @@ export const MAP_LAYERS = {
   },
 }
 
-export const DEFAULT_MAP_MODE = 'dark'
+export const DEFAULT_MAP_MODE = 'light'
 
 export function mapLayerOf(mode) {
   return MAP_LAYERS[mode] || MAP_LAYERS[DEFAULT_MAP_MODE]
@@ -51,7 +51,7 @@ export function mapLayerOf(mode) {
 export function routeColorsFor(mode) {
   const light = mapLayerOf(mode).light
   return {
-    main: light ? '#1f6feb' : '#58a6ff',
-    selected: light ? '#b8860b' : '#d29922',
+    main: light ? '#0071e3' : '#58a6ff',
+    selected: light ? '#9a6700' : '#d29922',
   }
 }

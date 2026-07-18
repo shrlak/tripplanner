@@ -117,7 +117,7 @@ export default function MealsView() {
                 Meal details
                 <span className={`chip ${typeChip[selected.type] || ''}`}>{MEAL_TYPE_LABELS[selected.type] || selected.type}</span>
               </div>
-              <h2 style={{ margin: '4px 0 2px', fontSize: 22, textTransform: 'uppercase', letterSpacing: '.02em' }}>
+              <h2 style={{ margin: '4px 0 2px', fontSize: 22, letterSpacing: '-0.01em' }}>
                 {selected.title}
               </h2>
               <div style={{ fontSize: 12, color: 'var(--muted)' }}>

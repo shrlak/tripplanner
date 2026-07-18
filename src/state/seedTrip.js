@@ -78,21 +78,21 @@ export function buildSeedTrip() {
 
   const northCrew = createFamily({
     name: 'North crew',
-    color: '#58a6ff',
+    color: '#0071e3',
     size: '2 adults, 1 kid',
     vehicle: 'SUV',
     origin: { name: 'San Francisco, CA', lat: 37.7749, lon: -122.4194 },
   })
   const southCrew = createFamily({
     name: 'South crew',
-    color: '#3fb950',
+    color: '#1a7f37',
     size: '2 adults',
     vehicle: 'Sedan',
     origin: { name: 'San Diego, CA', lat: 32.7157, lon: -117.1611 },
   })
 
   const trip = createTrip({
-    name: 'PACIFIC COAST ROAD TRIP',
+    name: 'Pacific Coast Road Trip',
     startDateTime: upcoming(1, 9, 0),
     endDateTime: upcoming(3, 20, 0),
     stops: [origin, boardwalk, montereyStay, mcway, sloStay, wharf, la],
